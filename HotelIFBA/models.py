@@ -29,6 +29,7 @@ class Cliente(models.Model):
 
 class Colaborador(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     nomeCompleto = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11)
     rg = models.CharField(max_length=9)
@@ -44,6 +45,7 @@ class Colaborador(models.Model):
 
 class Empresa(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     nomeEmpresa = models.CharField(max_length=100)
     proprietario = models.CharField(max_length=50)
     cnpj = models.CharField(max_length=14)

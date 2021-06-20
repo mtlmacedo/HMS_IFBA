@@ -37,8 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'HotelIFBA',
     'rest_framework',
+
+    #my_apps
+    'HotelIFBA',
+    'HotelIFBA.estadia_functions',
 ]
 
 MIDDLEWARE = [
