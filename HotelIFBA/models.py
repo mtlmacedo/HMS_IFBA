@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+
 class Endereco(models.Model):
     rua = models.CharField(max_length=200, null=False, blank=False)
     numero = models.IntegerField(null=False, blank=False)
@@ -21,15 +22,15 @@ class Cliente(models.Model):
     telefone = models.CharField(max_length=100)
     idNumero = models.CharField(max_length=100)
     idData = models.DateField()
-    email = models.EmailField(null=False)
-    senha = models.CharField(max_length=25, null=False)    
+    email = models.EmailField(null=True)
+    senha = models.CharField(max_length=25, null=True)    
     def __str__(self):
-        return self.nomeCliente
+        return self.id
 
 
 class Colaborador(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     nomeCompleto = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11)
     rg = models.CharField(max_length=9)
@@ -40,19 +41,19 @@ class Colaborador(models.Model):
     endereco = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.nomeCompleto
+        return self.id
 
 
 class Empresa(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     nomeEmpresa = models.CharField(max_length=100)
     proprietario = models.CharField(max_length=50)
     cnpj = models.CharField(max_length=14)
     endereco = models.OneToOneField(Endereco, on_delete=models.SET_NULL, null=True)
     telefone = models.CharField(max_length=11, null="True")
     categoria = models.CharField(max_length=100, null="True")
-    email = models.EmailField(null=False)
+    email = models.EmailField(null=True)
     
     def __str__(self):
         return self.nomeEmpresa
@@ -62,18 +63,19 @@ class Reserva(models.Model):
     id = models.AutoField(primary_key=True)
     dataEntrada = models.DateTimeField()
     dataSaida = models.DateTimeField()
-    tipoQuarto = models.CharField(max_length=50) # Suíte, p/ uma pessoa, p/ duas pessoas
+    tipoQuarto = models.CharField(max_length=50) # Suíte Presidencial, Comum
+    qtdPessoas = models.IntegerField(null=True) 
 
     def __str__(self):
-        return self.dataEntrada
+        return self.id
 
 class Estadia(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    cliente = models.ForeignKey("Cliente", on_delete=models.CASCADE, related_name='cliente', null=True)
     quarto = models.ForeignKey("Quarto", on_delete=models.CASCADE, related_name='quarto')
     dataEntrada = models.DateTimeField()
     dataSaida = models.DateTimeField()
-    #dados = models.ForeignKey("DadosPagamento", on_delete=models.CASCADE, related_name='dadosPagamento')
+    dadosPagamento = models.ForeignKey("DadosPagamento", on_delete=models.CASCADE, related_name='dadosPagamento')
     def __str__(self):
         return self.id
 
@@ -95,6 +97,7 @@ class Quarto(models.Model):
     andar = models.IntegerField()
     categoria = models.CharField(max_length=50)
     interfoneNumero = models.IntegerField()
+    capacidade = models.IntegerField(null=True)
 
     def __str__ (self):
-        return self.numeroQuarto
+        return self.id
