@@ -18,12 +18,13 @@ class Cliente(models.Model):
     nomeCliente = models.CharField(max_length=100)
     nacionalidade = models.CharField(max_length=100)
     dtNascimento = models.DateField()
-    endereco = models.OneToOneField(Endereco, on_delete=models.SET_NULL, null=True)
+    endereco = models.ForeignKey(Endereco, blank=True, null=True, default=None, on_delete=models.DO_NOTHING)
     telefone = models.CharField(max_length=100)
     idNumero = models.CharField(max_length=100)
     idData = models.DateField()
     email = models.EmailField(null=True)
     senha = models.CharField(max_length=25, null=True)    
+
     def __str__(self):
         return self.id
 
@@ -38,7 +39,7 @@ class Colaborador(models.Model):
     cargo = models.CharField(max_length=100)
     admissao = models.DateTimeField()
     jornadaDiaria = models.IntegerField()
-    endereco = models.CharField(max_length=200)
+    endereco = models.ForeignKey(Endereco, blank=True, null=True, default=None, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.id
@@ -50,7 +51,7 @@ class Empresa(models.Model):
     nomeEmpresa = models.CharField(max_length=100)
     proprietario = models.CharField(max_length=50)
     cnpj = models.CharField(max_length=14)
-    endereco = models.OneToOneField(Endereco, on_delete=models.SET_NULL, null=True)
+    endereco = models.ForeignKey(Endereco, blank=True, null=True, default=None, on_delete=models.DO_NOTHING)
     telefone = models.CharField(max_length=11, null="True")
     categoria = models.CharField(max_length=100, null="True")
     email = models.EmailField(null=True)
@@ -72,7 +73,7 @@ class Reserva(models.Model):
 class Estadia(models.Model):
     id = models.AutoField(primary_key=True)
     cliente = models.ForeignKey("Cliente", on_delete=models.CASCADE, related_name='cliente', null=True)
-    quarto = models.ForeignKey("Quarto", on_delete=models.CASCADE, related_name='quarto')
+    quarto = models.ForeignKey("Quarto", on_delete=models.CASCADE, related_name='quarto', null=True)
     dataEntrada = models.DateTimeField()
     dataSaida = models.DateTimeField()
     dadosPagamento = models.ForeignKey("DadosPagamento", on_delete=models.CASCADE, related_name='dadosPagamento')
