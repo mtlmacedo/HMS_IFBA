@@ -1,30 +1,24 @@
 from django.contrib import admin
-from HotelIFBA.models import Empresa, Cliente, Colaborador, Reserva, Estadia
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from HotelIFBA.models import *
+from HotelIFBA.forms import CustomUserCreationForm, CustomUserChangeForm
 
-class Empresas(admin.ModelAdmin):
-    list_display = ('nomeEmpresa', 'cnpj')
-    list_display_links = ('cnpj', 'nomeEmpresa')
-    search_fields = ('nomeEmpresa',)
+class CustomUser(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = Usuario
+    list_display = ['username', 'cpf', 'telefone']
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide1",),
+            "fields": ("username", "password1", "password2", "cpf", "telefone")
+        })
+    )
 
-class Clientes(admin.ModelAdmin):
-    list_display = ('id', 'nomeCliente', 'dtNascimento')
-    list_display_links = ('id', 'nomeCliente')
-
-class Colaboradores(admin.ModelAdmin):
-    list_display = ('id', 'nomeCompleto', 'rg')
-    list_display_links = ('id', 'nomeCompleto')
-
-class Reservas(admin.ModelAdmin):
-    list_display = ('id', 'dataEntrada', 'dataSaida', 'tipoQuarto', 'qtdPessoas')
-    list_display_links = ('id', 'dataEntrada')
-
-class Estadias(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'quarto', 'dataEntrada', 'dataSaida', 'dadosPagamento')
-    list_display_links = ('id', 'cliente')
-
-
-admin.site.register(Empresa, Empresas)
-admin.site.register(Cliente, Clientes)
-admin.site.register(Colaborador, Colaboradores)
-admin.site.register(Reserva, Reservas)
-admin.site.register(Estadia, Estadias)
+admin.site.register(Usuario, CustomUser)
+admin.site.register(Empresa)
+admin.site.register(Cliente)
+admin.site.register(Colaborador)
+admin.site.register(Reserva)
+admin.site.register(Estadia)

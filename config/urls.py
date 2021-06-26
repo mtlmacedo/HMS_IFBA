@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from HotelIFBA.views import EmpresasViewSet, ClienteViewSet, ColaboradorViewSet, ReservaViewSet, EstadiaViewSet
+from HotelIFBA.views import * 
 from rest_framework import routers
 
 router = routers.DefaultRouter()

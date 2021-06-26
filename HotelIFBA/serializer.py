@@ -1,6 +1,19 @@
 from django.db.models import fields
 from rest_framework import serializers
-from HotelIFBA.models import Cliente, Empresa, Colaborador, Reserva, Estadia
+from HotelIFBA.models import *
+
+class UsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['username', 'password', 'email', 'cpf', 'telefone', 'endereco']
+        
+    def create(self, validated_data):
+        password = validated_data['password']
+        user = self.Meta.model(**validated_data)
+        if password is not None:
+            user.set_password(password)
+        user.save()
+        return user
 
 class EmpresaSerializer(serializers.ModelSerializer):
     class Meta:
