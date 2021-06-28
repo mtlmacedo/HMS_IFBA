@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from HotelIFBA.models import Cliente, Empresa, Colaborador, Reserva, Estadia
+from HotelIFBA.models import *
 
 class EmpresaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,3 +26,8 @@ class EstadiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estadia
         fields = ['id', 'cliente', 'quarto', 'dataEntrada', 'dataSaida', 'dadosPagamento']
+
+class QuartoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quarto
+        fields = ['numeroQuarto', 'andar', 'categoria', 'interfoneNumero', 'capacidade']

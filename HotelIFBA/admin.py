@@ -1,5 +1,5 @@
 from django.contrib import admin
-from HotelIFBA.models import Empresa, Cliente, Colaborador, Reserva, Estadia
+from HotelIFBA.models import *
 
 class Empresas(admin.ModelAdmin):
     list_display = ('nomeEmpresa', 'cnpj')
@@ -28,3 +28,4 @@ admin.site.register(Cliente, Clientes)
 admin.site.register(Colaborador, Colaboradores)
 admin.site.register(Reserva, Reservas)
 admin.site.register(Estadia, Estadias)
+admin.site.register(Quarto)

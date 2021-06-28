@@ -26,7 +26,7 @@ class Cliente(models.Model):
     senha = models.CharField(max_length=25, null=True)    
 
     def __str__(self):
-        return self.id
+        return self.nomeCliente
 
 
 class Colaborador(models.Model):
@@ -42,7 +42,7 @@ class Colaborador(models.Model):
     endereco = models.ForeignKey(Endereco, blank=True, null=True, default=None, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.id
+        return self.nomeCompleto
 
 
 class Empresa(models.Model):
@@ -51,7 +51,7 @@ class Empresa(models.Model):
     nomeEmpresa = models.CharField(max_length=100)
     proprietario = models.CharField(max_length=50)
     cnpj = models.CharField(max_length=14)
-    endereco = models.ForeignKey(Endereco, blank=True, null=True, default=None, on_delete=models.DO_NOTHING)
+    endereco = models.ForeignKey(Endereco, blank=True, null=True, default=None, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=11, null="True")
     categoria = models.CharField(max_length=100, null="True")
     email = models.EmailField(null=True)
@@ -68,7 +68,7 @@ class Reserva(models.Model):
     qtdPessoas = models.IntegerField(null=True) 
 
     def __str__(self):
-        return self.id
+        return self.tipoQuarto
 
 class Estadia(models.Model):
     id = models.AutoField(primary_key=True)
@@ -78,7 +78,7 @@ class Estadia(models.Model):
     dataSaida = models.DateTimeField()
     dadosPagamento = models.ForeignKey("DadosPagamento", on_delete=models.CASCADE, related_name='dadosPagamento')
     def __str__(self):
-        return self.id
+        return self.cliente
 
 class DadosPagamento(models.Model):
     id = models.AutoField(primary_key=True)
@@ -101,4 +101,4 @@ class Quarto(models.Model):
     capacidade = models.IntegerField(null=True)
 
     def __str__ (self):
-        return self.id
+        return self.numeroQuarto

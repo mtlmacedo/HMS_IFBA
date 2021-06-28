@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from HotelIFBA.models import Cliente, Empresa, Colaborador, Reserva, Estadia
-from HotelIFBA.serializer import EmpresaSerializer, ClienteSerializer, ColaboradorSerializer, ReservaSerializer, EstadiaSerializer
+from HotelIFBA.models import *
+from HotelIFBA.serializer import *
 
 class EmpresasViewSet(viewsets.ModelViewSet):
     queryset = Empresa.objects.all()
@@ -21,3 +21,7 @@ class ReservaViewSet(viewsets.ModelViewSet):
 class EstadiaViewSet(viewsets.ModelViewSet):
     queryset = Estadia.objects.all()
     serializer_class = EstadiaSerializer
+
+class QuartoViewSet(viewsets.ModelViewSet):
+    queryset = Quarto.objects.all()
+    serializer_class = QuartoSerializer
