@@ -1,17 +1,56 @@
 from django.contrib import admin
 from django.urls import path, include
 from HotelIFBA.views import *
-from rest_framework import routers
+from rest_framework import routers, permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 router = routers.DefaultRouter()
-# router.register('empresas', EmpresasViewSet)
-router.register('clientes', ClienteViewSet)
-router.register('colaboradores', ColaboradorViewSet)
-router.register('reservas', ReservaViewSet)
-router.register('estadias', EstadiaViewSet)
-router.register('quartos', QuartoViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'groups', GroupViewSet)
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Hotel IFBA API",
+      default_version='v1.0.0',
+      description="Sistema para empregados implementado em Python/Django",
+      terms_of_service="https://www.google.com/policies/terms/",
+      authors="Matheus Alves e Matheus Macedo",
+      contact=openapi.Contact(email=""),
+      license=openapi.License(name="MIT License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+
+    path('login/', login),
+    path('logout/', logout),
+
+    path('empresas/', get_empresa),
+    path('empresas/<int:pk>', detalhar_empresa),
+
+    path('quartos/', get_quarto),
+    path('quartos/<int:pk>', detalhar_quarto),
+    path('quartos-disponiveis/<int:pk>', quartos_disponiveis),
+
+    path('estadias/', get_estadia),
+    path('estadias/<int:pk>', detalhar_estadia),
+
+    path('reservas/', get_reserva),
+    path('reservas/<int:pk>', detalhar_reserva),
+
+    path('servicos/', get_tipo_servico),
+    path('servico/<int:pk>', detalhar_tipo_servico),
+
+    path('clientes/', get_cliente),
+    path('clientes/<int:pk>', detalhar_cliente),
+
+    path('colaboradores/', get_colaborador),
+    path('colaboradores/<int:pk>', detalhar_colaborador),
+
+    path('estatisticas/', get_estatistica),
 ]
