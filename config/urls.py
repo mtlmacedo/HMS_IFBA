@@ -6,17 +6,16 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'groups', GroupViewSet)
+router.register(r'usuarios', UserViewSet)
+router.register(r'grupos', GroupViewSet)
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Hotel IFBA API",
+      title="HMS IFBA",
       default_version='v1.0.0',
-      description="Sistema para empregados implementado em Python/Django",
+      description="Sistema de Gerenciamento de Hotéis(HMS) implementado em Python/Django",
       terms_of_service="https://www.google.com/policies/terms/",
       authors="Matheus Alves e Matheus Macedo",
-      contact=openapi.Contact(email=""),
       license=openapi.License(name="MIT License"),
    ),
    public=True,
@@ -26,6 +25,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('login/', login),
     path('logout/', logout),
