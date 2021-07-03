@@ -10,6 +10,9 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+import string
+import secrets
+from datetime import datetime
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
@@ -146,19 +149,61 @@ def alterar_status_quarto(pk):
         quarto.save()
         return True
 
-empregados_response = openapi.Response('Response Description', ColaboradorSerializer)
-@swagger_auto_schema(method='GET', responses={200: empregados_response})
+colaboradors_response = openapi.Response('Response Description', ColaboradorSerializer)
+@swagger_auto_schema(method='GET', responses={200: colaboradors_response})
 @swagger_auto_schema(methods=['POST'], request_body=ColaboradorSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_colaborador(request):
-    pass
+    if(request.method == 'GET'):
+        # colaborador = Colaborador.objects.all()
+        colaborador_serializer = ColaboradorSerializer(Colaborador.objects.all(), many=True)
+        return Response(colaborador_serializer.data)
+    elif (request.method == 'POST'):
+        colaborador_serializer = ColaboradorSerializer(data=request.data)
+        if(colaborador_serializer.is_valid()):
+            senha = request.data['senha']
+            login = request.data['login']
+            cargo = request.data['cargo']
+            usuario = User.objects.create_user(login, "", senha)
+
+            if(cargo == "G"):
+                group = Group.objects.get(name='Gerente')
+            elif(cargo == "R"):
+                group = Group.objects.get(name='Recepcionista')
+            
+            group.user_set.add(usuario)
+            usuario.is_admin = True
+            usuario.is_staff = True
+            usuario.save()
+
+            colaborador_serializer.save()
+            return Response(colaborador_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(colaborador_serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(methods=['PUT'], request_body=ColaboradorSerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_colaborador(request, pk):
-    pass
+    try:
+        colaborador = Colaborador.objects.get(pk=pk)
+    except Colaborador.DoesNotExist:
+        return Response('colaborador não encontrado', status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        colaborador_serializer = ColaboradorSerializer(colaborador)
+        return Response(colaborador_serializer.data)
+
+    elif request.method == 'PUT':
+        colaborador_serializer = ColaboradorSerializer(colaborador, data=request.data)
+        if colaborador_serializer.is_valid():
+            colaborador_serializer.save()
+            return Response(colaborador_serializer.data)
+        return Response(colaborador_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        colaborador.delete()
+        return Response(status=status.HTTP_200_OK)
 
 cliente_response = openapi.Response('Response Description', ClienteSerializer)
 @swagger_auto_schema(method='GET', responses={200: cliente_response})
@@ -211,7 +256,7 @@ estadias_response = openapi.Response('Response Description', EstadiaSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_estadia(request):
-    pass
+   pass
 
 @swagger_auto_schema(methods=['PUT'], request_body=EstadiaSerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
