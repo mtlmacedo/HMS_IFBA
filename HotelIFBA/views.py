@@ -50,19 +50,47 @@ def logout(resquest):
 
 user_response = openapi.Response('Response Description', UserSerializer)
 
+
 empresa_response = openapi.Response('Response Description', EmpresaSerializer)
 @swagger_auto_schema(method='GET', responses={200: empresa_response})
 @swagger_auto_schema(methods=['POST'], request_body=EmpresaSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_empresa(request):
-    pass
+    if(request.method == 'GET'):
+        empresa = Empresa.objects.all()
+        empresa_serializer = EmpresaSerializer(empresa, many=True)
+        return Response(empresa_serializer.data)
+    elif(request.method == 'POST'):
+        empresa_serializer = EmpresaSerializer(data=request.data)
+        if(empresa_serializer.is_valid):
+            empresa_serializer.save()
+            return Response(empresa_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(empresa_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(methods=['PUT'], request_body=EmpresaSerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_empresa(request, pk):
-    pass
+    try:
+        empresa = Empresa.objects.get(pk=pk)
+    except Empresa.DoesNotExist:
+        return Response('Empresa não encontrada', status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        empresa_serializer = EmpresaSerializer(empresa)
+        return Response(empresa_serializer.data)
+
+    elif request.method == 'PUT':
+        empresa_serializer = EmpresaSerializer(empresa, data=request.data)
+        if empresa_serializer.is_valid():
+            empresa_serializer.save()
+            return Response(empresa_serializer.data)
+        return Response(empresa_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        empresa.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 quartos_response = openapi.Response('Response Description', QuartoSerializer)
@@ -71,22 +99,54 @@ quartos_response = openapi.Response('Response Description', QuartoSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_quarto(request):
-    pass
+    if request.method == 'GET':
+        quarto = Quarto.objects.all()
+        quarto_serializer = QuartoSerializer(quarto, many=True)
+        return Response(quarto_serializer.data)
+
+    elif request.method == 'POST':
+        quarto_serializer = QuartoSerializer(data=request.data)
+        if quarto_serializer.is_valid():
+            quarto_serializer.save()
+            return Response(quarto_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(quarto_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(methods=['PUT'], request_body=QuartoSerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_quarto(request, pk):
-    pass
+    try:
+        quarto = Quarto.objects.get(pk=pk)
+    except Quarto.DoesNotExist:
+        return Response('Quarto não encontrada', status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        quarto_serializer = QuartoSerializer(quarto)
+        return Response(quarto_serializer.data)
+
+    elif request.method == 'PUT':
+        quarto_serializer = QuartoSerializer(quarto, data=request.data)
+        if quarto_serializer.is_valid():
+            quarto_serializer.save()
+            return Response(quarto_serializer.data)
+        return Response(quarto_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        quarto.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 def quartos_disponiveis(request, capacidade):
-    pass
+    quarto = Quarto.objects.filter(capacidade__icontains = capacidade, disponibilidade = True).first()
+    return HttpResponse(quarto.id)
 
 def alterar_status_quarto(pk):
-    pass
+    quarto = Quarto.objects.get(pk=pk)
+
+    if(quarto.disponibilidade is True):
+        quarto.disponibilidade = False
+        quarto.save()
+        return True
 
 empregados_response = openapi.Response('Response Description', ColaboradorSerializer)
-
 @swagger_auto_schema(method='GET', responses={200: empregados_response})
 @swagger_auto_schema(methods=['POST'], request_body=ColaboradorSerializer)
 @api_view(['GET', 'POST'])
