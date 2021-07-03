@@ -26,7 +26,7 @@ class ClienteSerializer(serializers.ModelSerializer):
 class ColaboradorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Colaborador
-        fields = ['id', 'nomeCompleto', 'cpf', 'cargo', 'admissao', 'jornadaDiaria', 'endereco', 'login', 'senha']
+        fields = ['id', 'nomeCompleto', 'cpf', 'cargo', 'admissao', 'jornadaDiaria', 'login', 'senha']
 
 class ReservaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,7 +36,7 @@ class ReservaSerializer(serializers.ModelSerializer):
 class EstadiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estadia
-        fields = ['id', 'numero_cartao', 'cliente', 'quarto', 'dataEntrada', 'dataSaida', 'dadosPagamento', 'qtd_pessoas', 'qtd_quartos', 'reserva', 'mudanca_quarto']
+        fields = ['id', 'numero_cartao', 'cliente', 'quarto', 'dataEntrada', 'dataSaida', 'dadosPagamento', 'qtd_pessoas', 'qtd_quartos', 'reserva', 'mundanca_quarto']
 
 class QuartoSerializer(serializers.ModelSerializer):
     class Meta:
