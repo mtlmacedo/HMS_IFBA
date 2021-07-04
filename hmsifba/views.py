@@ -34,10 +34,11 @@ def login(request):
         user = authenticate(request, username=usuario, password=senha)
         if(user is not None):
             login(request, user)
-            return HttpResponse("Success", status=status.HTTP_200_OK)
+            return HttpResponse("login realizado com sucesso", status=status.HTTP_200_OK)
         else:
-            return HttpResponse("Not Found", status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse("Falha na autorização de acesso", status=status.HTTP_400_BAD_REQUEST)
 
+            
 @permission_classes([AllowAny])
 def logout(resquest):
     try:
@@ -432,22 +433,18 @@ def baixar_fatura(request, pk):
         response = FileResponse(file)
         response['Content-Type'] = 'application/application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         response['Content-Disposition'] = f'attachment;filename={nome_doc}'      
-
         return response
 
 def mudar_quarto(estadia, pk):
-    quarto = Quarto.objects.filter(capacidade__icontains = estadia.quantidade_pessoas, isDisponivel = True).first()
+    quarto = Quarto.objects.filter(capacidade__icontains = estadia.quantidade_pessoas, disponibilidade = True).first()
     quarto_atual = estadia.reserva.quarto
-
     if quarto is not None:
-        reserva_quarto = alterar_status_quarto(quarto.id)
-        
+        reserva_quarto = alterar_status_quarto(quarto.id) 
         if reserva_quarto is True:
-            quarto_atual.isDisponivel = True
+            quarto_atual.disponibilidade = True
             quarto_atual.save()
             estadia.reserva.quarto = quarto          
             estadia.reserva.save()
-
     return quarto
 
 estatistica_response = openapi.Response('Response Description', EstatisticaSerializer)
@@ -457,10 +454,9 @@ def get_estatistica(request):
         estatistica = Estatistica.objects.all()
         serializer = EstatisticaSerializer(estatistica, many=True)
         return Response(serializer.data)
-        
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
-def createEstatistica(valor_total, entrada, cliente):
+def criarEstatistica(valor_total, entrada, cliente):
     data_entrada = datetime.strptime(entrada.strftime('%m/%d/%Y'), "%m/%d/%Y")
     anoReferente = data_entrada.year
     mes = data_entrada.month
