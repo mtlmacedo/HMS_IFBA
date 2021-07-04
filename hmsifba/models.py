@@ -124,4 +124,4 @@ class Estatistica(models.Model):
     ano = models.CharField(help_text='Ano', max_length=256)   
     
     def __str__(self):
-        return self.trimestre
+        return self.semestre

@@ -1,13 +1,11 @@
 from django.http.response import HttpResponse, FileResponse
 from rest_framework import viewsets, permissions, status
-from rest_framework.serializers import Serializer
 from hmsifba.models import *
 from hmsifba.serializer import *
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.models import User, Group
-from drf_yasg.utils import swagger_auto_schema
 from django.contrib.auth import authenticate, login, logout
 from drf_yasg import openapi
 import string
@@ -25,25 +23,21 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-@swagger_auto_schema(methods=['POST'], request_body=UserSerializer)
-@api_view(['POST'])
+
+user_response = openapi.Response('Response Description', UserSerializer)
 @permission_classes([AllowAny])
 def login(request):
     if(request.method == 'POST'):
-        body_serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         usuario = request.data['username']
         senha = request.data['password']
-
         user = authenticate(request, username=usuario, password=senha)
-        
         if(user is not None):
             login(request, user)
             return HttpResponse("Success", status=status.HTTP_200_OK)
         else:
             return HttpResponse("Not Found", status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(methods=['POST'], request_body=UserSerializer)
-@api_view(['POST'])
 @permission_classes([AllowAny])
 def logout(resquest):
     try:
@@ -52,13 +46,7 @@ def logout(resquest):
     except KeyError:
         return HttpResponse("Not Found", status=status.HTTP_404_NOT_FOUND)
 
-user_response = openapi.Response('Response Description', UserSerializer)
-
-
 empresa_response = openapi.Response('Response Description', EmpresaSerializer)
-@swagger_auto_schema(method='GET', responses={200: empresa_response})
-@swagger_auto_schema(methods=['POST'], request_body=EmpresaSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_empresa(request):
     if(request.method == 'GET'):
@@ -72,8 +60,6 @@ def get_empresa(request):
             return Response(empresa_serializer.data, status=status.HTTP_201_CREATED)
         return Response(empresa_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(methods=['PUT'], request_body=EmpresaSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_empresa(request, pk):
     try:
@@ -98,9 +84,6 @@ def detalhar_empresa(request, pk):
 
 
 quartos_response = openapi.Response('Response Description', QuartoSerializer)
-@swagger_auto_schema(method='GET', responses={200: quartos_response})
-@swagger_auto_schema(methods=['POST'], request_body=QuartoSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_quarto(request):
     if request.method == 'GET':
@@ -115,8 +98,6 @@ def get_quarto(request):
             return Response(quarto_serializer.data, status=status.HTTP_201_CREATED)
         return Response(quarto_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(methods=['PUT'], request_body=QuartoSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_quarto(request, pk):
     try:
@@ -138,22 +119,18 @@ def detalhar_quarto(request, pk):
         quarto.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-def quartos_disponiveis(request, capacidade):
+def quartos_disponiveis(capacidade):
     quarto = Quarto.objects.filter(capacidade__icontains = capacidade, disponibilidade = True).first()
     return HttpResponse(quarto.id)
 
 def alterar_status_quarto(pk):
     quarto = Quarto.objects.get(pk=pk)
-
     if(quarto.disponibilidade is True):
         quarto.disponibilidade = False
         quarto.save()
         return True
 
 colaboradors_response = openapi.Response('Response Description', ColaboradorSerializer)
-@swagger_auto_schema(method='GET', responses={200: colaboradors_response})
-@swagger_auto_schema(methods=['POST'], request_body=ColaboradorSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_colaborador(request):
     if(request.method == 'GET'):
@@ -182,8 +159,6 @@ def get_colaborador(request):
             return Response(colaborador_serializer.data, status=status.HTTP_201_CREATED)
         return Response(colaborador_serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(methods=['PUT'], request_body=ColaboradorSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_colaborador(request, pk):
     try:
@@ -207,9 +182,6 @@ def detalhar_colaborador(request, pk):
         return Response(status=status.HTTP_200_OK)
 
 cliente_response = openapi.Response('Response Description', ClienteSerializer)
-@swagger_auto_schema(method='GET', responses={200: cliente_response})
-@swagger_auto_schema(methods=['POST'], request_body=ClienteSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_cliente(request):
     if request.method == 'GET':
@@ -235,8 +207,6 @@ def get_cliente(request):
             return Response(cliente_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cliente_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(methods=['PUT'], request_body=ClienteSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_cliente(request, pk):
     try:
@@ -264,55 +234,165 @@ def detalhar_cliente(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 servicos_response = openapi.Response('Response Description', TipoServicoSerializer)
-@swagger_auto_schema(method='GET', responses={200: servicos_response})
-@swagger_auto_schema(methods=['POST'], request_body=TipoServicoSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_tipo_servico(request):
-    pass
+    if(request.method == 'GET'):
+        tipo_servico = TipoServico.objects.all()
+        serializer = TipoServicoSerializer(tipo_servico, many=True)
+        return Response(serializer.data)
+    elif (request.method == 'POST'):
+        serializer = TipoServicoSerializer(data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(methods=['PUT'], request_body=TipoServicoSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_tipo_servico(request, pk):
-    pass
+    try:
+        tipo_servico = TipoServico.objects.get(pk=pk)
+    except TipoServico.DoesNotExist:
+        return Response('Tipo de Serviço não encontrado', status=status.HTTP_404_NOT_FOUND)
+    if (request.method == 'GET'):
+        serializer = TipoServicoSerializer(tipo_servico)
+        return Response(serializer.data)
+    elif (request.method == 'PUT'):
+        serializer = TipoServicoSerializer(tipo_servico, data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    elif (request.method == 'DELETE'):
+        tipo_servico.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 reservas_response = openapi.Response('Response Description', ReservaSerializer)
-@swagger_auto_schema(method='GET', responses={200: reservas_response})
-@swagger_auto_schema(methods=['POST'], request_body=ReservaSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_reserva(request):
-    pass
-
-@swagger_auto_schema(methods=['PUT'], request_body=ReservaSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
+    if (request.method == 'GET'):
+        reserva = Reserva.objects.all()
+        serializer = ReservaSerializer(reserva, many=True)
+        return Response(serializer.data)
+    elif (request.method == 'POST'):
+        serializer = ReservaSerializer(data=request.data)
+        if (serializer.is_valid()):
+            id_quarto = request.data['quarto']
+            quarto_reservado = alterar_status_quarto(id_quarto)
+            if(quarto_reservado):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response("Quarto está ocupado", status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @permission_classes([IsAuthenticated])
 def detalhar_reserva(request, pk):
-    pass
+    try:
+        reserva = Reserva.objects.get(pk=pk)
+    except Reserva.DoesNotExist:
+        return Response("Reserva não encontrada", status=status.HTTP_404_NOT_FOUND)
+    if (request.method == 'GET'):
+        serializer = ReservaSerializer(reserva)
+        return Response(serializer.data)
+    elif (request.method == 'PUT'):
+        serializer = ReservaSerializer(reserva, data=request.data)
+        if(serializer.is_valid()):
+            id_quarto = request.data['quarto']
+            total_pessoas = request.data['qtd_pessoas']
+            if(total_pessoas > reserva.qtd_pessoas and id_quarto == reserva.quarto.id):
+                return Response("Quantidade de pessoas não suportada", status=status.HTTP_400_BAD_REQUEST)
+            if(id_quarto != reserva.quarto.id):
+                nova_reserva = alterar_status_quarto(id_quarto)
+                if(nova_reserva):
+                    quarto = reserva.quarto
+                    quarto.disponibilidade
+                    quarto.save()
+                    return Response(serializer.data)
+                else:
+                    serializer.save()
+                    return Response("Quarto ocupado", status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    elif (request.method == 'DELETE'):
+        reserva.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-def createReserva(request):
-    pass
+def criarReserva(request):
+    reserva = Reserva()
+    reserva.cliente = Cliente.objects.get(pk=request.data['cliente']) 
+    reserva.dataEntrada = request.data['dataEntrada']
+    reserva.dataSaida = request.data['dataSaida']
+    reserva.qtd_pessoas = request.data['qtd_pessoas']
+    return reserva
 
 estadias_response = openapi.Response('Response Description', EstadiaSerializer)
-@swagger_auto_schema(method='GET', responses={200: estadias_response})
-@swagger_auto_schema(methods=['POST'], request_body=EstadiaSerializer)
-@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_estadia(request):
-   pass
+    if(request.method == 'GET'):
+        estadia = Estadia.objects.all()
+        serializer = EstadiaSerializer(estadia, many=True)
+        return Response(serializer.data)
+    elif (request.method == 'POST'):
+        serializer = EstadiaSerializer(data=request.data)
+        reserva_id = request.data['reserva']        
+        if (reserva_id is None):
+            estadia = criarEstadia(request)
+            reserva = criarReserva(request)
+            quarto_id = quartos_disponiveis(request.data['quantidade_pessoas'])
+            if (quarto_id is not None):
+                reservado = alterar_status_quarto(quarto_id)
+                estadia = atualizarEstadia(reservado, reserva, estadia, quarto_id)
+                estadia = Estadia.objects.get(pk=estadia.id)
+                serializer = EstadiaSerializer(estadia)
+                return Response(serializer.data)
+        else:
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@swagger_auto_schema(methods=['PUT'], request_body=EstadiaSerializer)
-@api_view(['GET', 'PUT', 'DELETE'])
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @permission_classes([IsAuthenticated])
 def detalhar_estadia(request, pk):
-    pass
+    try:
+        estadia = Estadia.objects.get(pk=pk)
+    except Estadia.DoesNotExist:
+        return Response('Estadia não encontrada', status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = EstadiaSerializer(estadia)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = EstadiaSerializer(estadia, data=request.data)
+        if serializer.is_valid():
+            if estadia.isMudancaDeQuarto is True:
+                quarto = mudar_quarto(estadia, pk) 
+                if quarto is not None:
+                    estadia.isMudancaDeQuarto = False
+                    estadia.save()
+                    return Response(serializer.data)
+                else:
+                    return Response("Não há quartos que satisfaçam a solicitação",status=status.HTTP_404_NOT_FOUND)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def criarEstadia(request):
-    pass
+    estadia = Estadia()
+    estadia.numero_cartao = request.data['numero_cartao']
+    estadia.dataEntrada = request.data['dataEntrada']
+    estadia.dataSaida = request.data['dataSaida']
+    estadia.qtd_pessoas = request.data['qtd_pessoas']
+    estadia.qtd_quartos = request.daa['qtd_quartos']
+    estadia.servico = request.data['servico']
+    return estadia
 
 def atualizarEstadia(reservado, reserva, estadia, quarto_id):
-    pass
+     if reservado is True:
+        quarto = Quarto.objects.get(pk=quarto_id)
+        reserva.quarto = quarto
+        reserva.save()
+        estadia.cliente = reserva.cliente
+        estadia.reserva = reserva
+        estadia.save()
+        estadia = Estadia.objects.get(pk=estadia.id)
+        return estadia
 
 def gerar_fatura(valor_total, pk):
     estadia = Estadia.objects.get(pk=pk)
@@ -322,7 +402,7 @@ def gerar_fatura(valor_total, pk):
 
     document.add_heading('Fatura', 0)
 
-    p = document.add_paragraph('Fatura referente à estadia no Hotel IFBA ')
+    title = document.add_paragraph('Fatura referente à estadia no Hotel IFBA ')
 
     document.add_heading('Dados da Estadia', 1)
     document.add_paragraph(f'Data de Entrada: {estadia.entrada}')
@@ -371,8 +451,6 @@ def mudar_quarto(estadia, pk):
     return quarto
 
 estatistica_response = openapi.Response('Response Description', EstatisticaSerializer)
-@swagger_auto_schema(method='GET', responses={200: estatistica_response})
-@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_estatistica(request):
     if request.method == 'GET':
@@ -387,10 +465,9 @@ def createEstatistica(valor_total, entrada, cliente):
     anoReferente = data_entrada.year
     mes = data_entrada.month
     semestreReferente = verificarSemestre(mes)
-
     estatistica = Estatistica.objects.filter(semestre=semestreReferente, ano=anoReferente)
  
-    if estatistica.exists():
+    if (estatistica.exists()):
         estatistica = Estatistica.objects.get(semestre=semestreReferente, ano=anoReferente)
         estatistica.ano = anoReferente
         estatistica.semestre = semestreReferente
