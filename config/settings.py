@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     #my_apps
-    'HotelIFBA',
+    'hmsifba',
     'rest_framework',
     'drf_yasg',
     'corsheaders',

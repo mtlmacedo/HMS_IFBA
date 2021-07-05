@@ -59,12 +59,13 @@ class TipoServico(models.Model):
         ("Reveillón", "Reveillón"),
         ("Carnaval", "Carnaval"),
         ("Feriado","Feriado"),
-        ("São-João", "São-João"),
+        ("São João", "São João"),
         ("Natal", "Natal"),
+        ("Dia Útil","Dia Útil")
     )
 
     preco = models.DecimalField(max_digits=10, decimal_places=2, help_text='Preço Diário')
-    tipo = models.CharField(max_length=20, blank=False, null=False)
+    tipo = models.CharField(max_length=256, blank=False, null=False)
     qtd_pessoas = models.IntegerField(help_text='Quantidade de Pessoas', default=1, blank=False, null=False)
     epoca_ano = models.CharField(max_length=50, choices=PERIODO_CHOICES, help_text='Época do Ano', blank=False, null=False)
 
@@ -80,7 +81,7 @@ class Quarto(models.Model):
     disponibilidade = models.BooleanField(default=True, help_text='Quarto Disponível')
 
     def __str__ (self):
-        return self.numeroQuarto
+        return self.categoria
 
 class DadosPagamento(models.Model):
     titular = models.CharField(max_length=50, help_text='Titular do Cartão')
@@ -90,7 +91,7 @@ class DadosPagamento(models.Model):
     digito = models.IntegerField(help_text='Digito do Cartão')
 
     def __str__ (self):
-        return self.numeroCartao
+        return self.titular
         
 class Reserva(models.Model):
     dataEntrada = models.DateTimeField(help_text='Data de Entrada da Reserva')
@@ -100,8 +101,8 @@ class Reserva(models.Model):
     servico = models.ForeignKey(TipoServico, on_delete=models.CASCADE, related_name="HotelIFBAReservaServico", blank=False, null=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name="HotelIFBAReservaCliente", blank=False, null=True)
 
-    def __str__(self):
-        return [self.servico]
+    #def __str__(self):
+     #  return self.dataEntrada
 
 class Estadia(models.Model):
     numero_cartao = models.CharField(max_length=15, help_text="Cartão de acesso")
@@ -116,16 +117,15 @@ class Estadia(models.Model):
     
     servico = models.ForeignKey(TipoServico, on_delete=models.CASCADE, related_name="servico", blank=False, null=True)
     dadosPagamento = models.ForeignKey(DadosPagamento, on_delete=models.CASCADE, related_name='dadosPagamento', blank=False, null=False)
-    def __str__(self):
-        return self.cliente
+    #def __str__(self):
+     #   return self.dataEntrada
 
 class Estatistica(models.Model):
-    trimestre = models.CharField(help_text='Período correspondente ao cálculo', max_length=256)
+    semestre = models.CharField(help_text='Período correspondente ao cálculo', max_length=256)
     clienteId = models.CharField(help_text='Id do cliente', max_length=256)
     custoTotalCliente = models.FloatField(help_text='Custo total de um determinado cliente')
-    taxaOcupacaoQuartos = models.FloatField(help_text='Relação entre pessoas alojadas e capacidade máxima')
     taxaQuartosVendidos = models.FloatField(help_text='Número de quartos vendidos em relação ao número total de quartos')
-    faturamentoDoTrimestre = models.FloatField(help_text='Total do faturamento referente ao trimestre')
+    faturamentoSemestre = models.FloatField(help_text='Total do faturamento referente ao semestre')
     faturamentoAnual = models.FloatField(help_text='Faturamento do ano')
     clientePremium = models.CharField(help_text='Cliente com maior gasto', max_length=256)
     ano = models.CharField(help_text='Ano', max_length=256)   
@@ -168,3 +168,4 @@ class MyAccountManager(BaseUserManager):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+       

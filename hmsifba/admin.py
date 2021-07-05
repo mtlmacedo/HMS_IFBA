@@ -1,5 +1,5 @@
 from django.contrib import admin
-from HotelIFBA.models import *
+from hmsifba.models import *
 
 class Empresas(admin.ModelAdmin):
     list_display = ('id', 'nomeEmpresa', 'proprietario', 'endereco', 'telefone', 'categoria', 'email')
@@ -31,8 +31,8 @@ class Estadias(admin.ModelAdmin):
     list_display_links = ('id', 'dataEntrada', 'dataSaida')
 
 class Estatisticas(admin.ModelAdmin):
-    list_display = ('id','trimestre','taxaOcupacaoQuartos','taxaQuartosVendidos','faturamentoDoTrimestre','faturamentoAnual','ano','clienteId', 'clientePremium','custoTotalCliente')
-    search_fields = ('id','trimestre','taxaOcupacaoQuartos','taxaQuartosVendidos','faturamentoDoTrimestre','faturamentoAnual','ano','clienteId', 'clientePremium','custoTotalCliente')
+    list_display = ('id','semestre', 'taxaQuartosVendidos','faturamentoSemestre','faturamentoAnual','ano','clienteId', 'clientePremium','custoTotalCliente')
+    search_fields = ('id','semestre', 'taxaQuartosVendidos','faturamentoSemestre','faturamentoAnual','ano','clienteId', 'clientePremium','custoTotalCliente')
 
 
 
@@ -43,3 +43,5 @@ admin.site.register(Reserva, Reservas)
 admin.site.register(Estadia, Estadias)
 admin.site.register(Quarto, Quartos)
 admin.site.register(TipoServico, TipoServicos)
+admin.site.register(DadosPagamento)
+admin.site.register(Estatistica, Estatisticas)

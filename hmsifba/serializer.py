@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from HotelIFBA.models import *
+from hmsifba.models import *
 from django.contrib.auth.models import User, Group
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,7 +26,7 @@ class ClienteSerializer(serializers.ModelSerializer):
 class ColaboradorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Colaborador
-        fields = ['id', 'nomeCompleto', 'cpf', 'cargo', 'admissao', 'jornadaDiaria', 'endereco', 'login', 'senha']
+        fields = ['id', 'nomeCompleto', 'cpf', 'cargo', 'admissao', 'jornadaDiaria', 'login', 'senha']
 
 class ReservaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,7 +36,7 @@ class ReservaSerializer(serializers.ModelSerializer):
 class EstadiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estadia
-        fields = ['id', 'numero_cartao', 'cliente', 'quarto', 'dataEntrada', 'dataSaida', 'dadosPagamento', 'qtd_pessoas', 'qtd_quartos', 'reserva', 'mudanca_quarto']
+        fields = ['id', 'numero_cartao', 'cliente', 'quarto', 'dataEntrada', 'dataSaida', 'dadosPagamento', 'qtd_pessoas', 'qtd_quartos', 'reserva', 'mundanca_quarto']
 
 class QuartoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,6 +47,11 @@ class TipoServicoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoServico
         fields = ['id', 'tipo', 'preco', 'epoca_ano' ]
+
+class DadosPagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DadosPagamento
+        fields = ['id', 'titular', 'agencia', 'conta', 'digito']
 
 class EstatisticaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,3 +91,4 @@ class RegistrationSerializer(serializers.ModelSerializer):
         usuario.set_password(password)
         usuario.save()
         return usuario
+
