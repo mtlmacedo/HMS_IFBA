@@ -1,6 +1,8 @@
 from django.http.response import HttpResponse
+from django.http.request import HttpRequest as request
 from rest_framework import viewsets, permissions, status
 from rest_framework.serializers import Serializer
+from rest_framework.request import Request
 from HotelIFBA.models import *
 from HotelIFBA.serializer import *
 from rest_framework.decorators import api_view, permission_classes
@@ -10,6 +12,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.authtoken.models import Token
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
@@ -21,10 +24,28 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+@api_view(['POST', ])
+def registration_view(request):
+
+	if request.method == 'POST':
+		serializer = RegistrationSerializer(data=request.data)
+		data = {}
+		if serializer.is_valid():
+			cliente = serializer.save()
+			data['response'] = 'successfully registered new user.'
+			data['email'] = cliente.email
+			data['username'] = cliente.username
+			token = Token.objects.get(user=cliente).key
+			data['token'] = token
+		else:
+			data = serializer.errors
+		return Response(data)
+
+
 @swagger_auto_schema(methods=['POST'], request_body=UserSerializer)
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def login(request):
+def loginUser(request):
     if(request.method == 'POST'):
         body_serializer = UserSerializer(data=request.data)
         usuario = request.data['username']
@@ -118,9 +139,13 @@ servicos_response = openapi.Response('Response Description', TipoServicoSerializ
 @swagger_auto_schema(method='GET', responses={200: servicos_response})
 @swagger_auto_schema(methods=['POST'], request_body=TipoServicoSerializer)
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def get_tipo_servico(request):
-    pass
+    if request.method == 'GET':
+        tipoServico = TipoServico.objects.all()
+        serializer = TipoServicoSerializer(tipoServico, many=True)
+        return Response(serializer.data)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(methods=['PUT'], request_body=TipoServicoSerializer)
 @api_view(['GET', 'PUT', 'DELETE'])

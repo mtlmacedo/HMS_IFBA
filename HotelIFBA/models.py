@@ -1,19 +1,15 @@
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.fields.related import ForeignKey
 
-
-class Empresa(models.Model):
-    nomeEmpresa = models.CharField(max_length=100, help_text='Nome da Empresa', blank=False, null=True)
-    proprietario = models.CharField(max_length=50, help_text='Proprietário', blank=False, null=True)
-    endereco = models.CharField(max_length=200, help_text='Endereço', blank=False, null=True)
-    telefone = models.CharField(max_length=11, help_text='Telefone', null=True)
-    categoria = models.CharField(max_length=100, help_text='Categoria', blank=False, null=True)
-    email = models.EmailField(max_length=256, help_text='E-mail da Empresa', null=True, blank=False)
-    
-    def __str__(self):
-        return self.nomeEmpresa
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 class Cliente(models.Model):
+    #user = models.OneToOneField(User, on_delete=models.CASCADE)
     nomeCliente = models.CharField(max_length=100, help_text='Nome do Cliente', blank=False, null=True)
     nacionalidade = models.CharField(max_length=50, help_text='Nacionalidade')
     data_nascimento = models.DateField(help_text='Data de Nascimento')
@@ -27,6 +23,17 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nomeCliente
 
+
+class Empresa(models.Model):
+    nomeEmpresa = models.CharField(max_length=100, help_text='Nome da Empresa', blank=False, null=True)
+    proprietario = models.CharField(max_length=50, help_text='Proprietário', blank=False, null=True)
+    endereco = models.CharField(max_length=200, help_text='Endereço', blank=False, null=True)
+    telefone = models.CharField(max_length=11, help_text='Telefone', null=True)
+    categoria = models.CharField(max_length=100, help_text='Categoria', blank=False, null=True)
+    email = models.EmailField(max_length=256, help_text='E-mail da Empresa', null=True, blank=False)
+    
+    def __str__(self):
+        return self.nomeEmpresa
 
 class Colaborador(models.Model):
 
@@ -125,3 +132,39 @@ class Estatistica(models.Model):
     
     def __str__(self):
         return self.trimestre
+
+
+
+
+class MyAccountManager(BaseUserManager):
+	def create_user(self, email, username, password=None):
+		if not email:
+			raise ValueError('Teste')
+		if not username:
+			raise ValueError('Users must have a username')
+
+		user = self.model(
+			email=self.normalize_email(email),
+			username=username,
+		)
+
+		user.set_password(password)
+		user.save(using=self._db)
+		return user
+
+	def create_superuser(self, email, username, password):
+		user = self.create_user(
+			email=self.normalize_email(email),
+			password=password,
+			username=username,
+		)
+		user.is_admin = True
+		user.is_staff = True
+		user.is_superuser = True
+		user.save(using=self._db)
+		return user
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

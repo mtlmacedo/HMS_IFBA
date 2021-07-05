@@ -4,6 +4,7 @@ from HotelIFBA.views import *
 from rest_framework import routers, permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -27,7 +28,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
 
-    path('login/', login),
+    path('login/', obtain_auth_token, name="login"),
+    path('register/', registration_view, name="register"),
     path('logout/', logout),
 
     path('empresas/', get_empresa),

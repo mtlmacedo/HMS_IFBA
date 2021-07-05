@@ -21,7 +21,7 @@ class EmpresaSerializer(serializers.ModelSerializer):
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
-        fields = ['id', 'nomeCliente', 'nacionalidade', 'data_nascimento', 'endereco', 'telefone', 'numero_id', 'data_exp', 'email']
+        fields = ['id', 'nomeCliente', 'email', 'nacionalidade', 'data_nascimento', 'endereco', 'telefone', 'numero_id', 'data_exp']
 
 class ColaboradorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,9 +46,43 @@ class QuartoSerializer(serializers.ModelSerializer):
 class TipoServicoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoServico
-        fields = ['id', 'tipo', 'preco']
+        fields = ['id', 'tipo', 'preco', 'epoca_ano' ]
 
 class EstatisticaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estatistica
         fields = ['id','trimestre','taxaOcupacaoQuartos','taxaQuartosVendidos','faturamentoDoTrimestre','faturamentoAnual','ano','clientePremium']
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    email =  models.EmailField(max_length=256)
+    username = models.CharField(max_length=100)
+    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'password', 'password2']
+        extra_kwargs = {
+                'password': {'write_only': True},
+        }	
+
+
+    def	save(self):        
+        
+        usuario = User(
+                    email=self.validated_data['email'],
+                    
+                )
+        email = self.validated_data['email']
+        username = self.validated_data['username']
+        password = self.validated_data['password']
+        password2 = self.validated_data['password2']
+
+        if password != password2:
+            raise serializers.ValidationError({'password': 'Passwords must match.'})
+        if not email:
+            raise serializers.ValidationError({'email': 'Invalid Email'})
+        if not username:
+            raise serializers.ValidationError({'username': 'Invalid Username'})
+        usuario.set_password(password)
+        usuario.save()
+        return usuario
