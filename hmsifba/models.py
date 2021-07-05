@@ -131,7 +131,7 @@ class Estatistica(models.Model):
     ano = models.CharField(help_text='Ano', max_length=256)   
     
     def __str__(self):
-        return self.trimestre
+        return self.semestre
 
 
 
@@ -168,4 +168,3 @@ class MyAccountManager(BaseUserManager):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
-       

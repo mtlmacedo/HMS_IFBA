@@ -53,10 +53,15 @@ class DadosPagamentoSerializer(serializers.ModelSerializer):
         model = DadosPagamento
         fields = ['id', 'titular', 'agencia', 'conta', 'digito']
 
+class DadosPagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DadosPagamento
+        fields = ['id', 'titular', 'agencia', 'conta', 'digito']
+
 class EstatisticaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estatistica
-        fields = ['id','trimestre','taxaOcupacaoQuartos','taxaQuartosVendidos','faturamentoDoTrimestre','faturamentoAnual','ano','clientePremium']
+        fields = ['id','trimestre', 'taxaQuartosVendidos','faturamentoSemestre','faturamentoAnual','ano','clientePremium']
 
 class RegistrationSerializer(serializers.ModelSerializer):
     email =  models.EmailField(max_length=256)
@@ -91,4 +96,3 @@ class RegistrationSerializer(serializers.ModelSerializer):
         usuario.set_password(password)
         usuario.save()
         return usuario
-
