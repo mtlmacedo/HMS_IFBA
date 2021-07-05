@@ -2,12 +2,13 @@ from django.http.response import HttpResponse, FileResponse
 from rest_framework import viewsets, permissions, status
 from hmsifba.models import *
 from hmsifba.serializer import *
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
 from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 import string
 import secrets
 from datetime import datetime
@@ -23,6 +24,24 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+user_response = openapi.Response('Response Description', UserSerializer)
+@api_view(['POST', ])
+@permission_classes([AllowAny])
+def registration_view(request):
+
+	if request.method == 'POST':
+		serializer = RegistrationSerializer(data=request.data)
+		data = {}
+		if serializer.is_valid():
+			cliente = serializer.save()
+			data['response'] = 'successfully registered new user.'
+			data['email'] = cliente.email
+			data['username'] = cliente.username
+			token = Token.objects.get(user=cliente).key
+			data['token'] = token
+		else:
+			data = serializer.errors
+		return Response(data)
 
 user_response = openapi.Response('Response Description', UserSerializer)
 @permission_classes([AllowAny])
@@ -235,7 +254,9 @@ def detalhar_cliente(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 servicos_response = openapi.Response('Response Description', TipoServicoSerializer)
-@permission_classes([IsAuthenticated])
+@swagger_auto_schema(method='GET', responses={200: servicos_response})
+@swagger_auto_schema(methods=['POST'], request_body=TipoServicoSerializer)
+@api_view(['GET', 'POST'])
 def get_tipo_servico(request):
     if(request.method == 'GET'):
         tipo_servico = TipoServico.objects.all()
