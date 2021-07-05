@@ -80,7 +80,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         
         usuario = User(
                     email=self.validated_data['email'],
-                    
+                    username = self.validated_data['username']
                 )
         email = self.validated_data['email']
         username = self.validated_data['username']
