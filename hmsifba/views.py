@@ -46,7 +46,7 @@ def registration_view(request):
 user_response = openapi.Response('Response Description', UserSerializer)
 @permission_classes([AllowAny])
 def login(request):
-    if(request.method == 'POST'):
+    if(request.method == 'GET'):
         serializer = UserSerializer(data=request.data)
         usuario = request.data['username']
         senha = request.data['password']
@@ -288,7 +288,9 @@ def detalhar_tipo_servico(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 reservas_response = openapi.Response('Response Description', ReservaSerializer)
+@swagger_auto_schema(method='GET', responses={200: servicos_response})
 @permission_classes([IsAuthenticated])
+@api_view(['GET', 'POST'])
 def get_reserva(request):
     if (request.method == 'GET'):
         reserva = Reserva.objects.all()
@@ -305,6 +307,10 @@ def get_reserva(request):
             else:
                 return Response("Quarto está ocupado", status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+servicos_response = openapi.Response('Response Description', ReservaSerializer)
+@swagger_auto_schema(methods=['POST', 'PUT'], request_body=ReservaSerializer)
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def detalhar_reserva(request, pk):
     try:
@@ -335,6 +341,14 @@ def detalhar_reserva(request, pk):
     elif (request.method == 'DELETE'):
         reserva.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+servicos_response = openapi.Response('Response Description', ReservaSerializer)
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deletaReserva(id, request):
+    reserva = Reserva.objects.get(pk=id)
+    reserva.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 def criarReserva(request):
     reserva = Reserva()
