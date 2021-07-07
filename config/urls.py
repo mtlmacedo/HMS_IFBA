@@ -3,6 +3,7 @@ from django.contrib import admin, auth
 from django.urls import path, include
 from hmsifba.views import *
 from rest_framework import routers, permissions
+from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.authtoken.views import obtain_auth_token
